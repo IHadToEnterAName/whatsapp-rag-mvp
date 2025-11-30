@@ -7,7 +7,7 @@ const pipeline = util.promisify(stream.pipeline);
 const unzipper = require('unzipper');
 const mammoth = require('mammoth');
 const pdfParse = require('pdf-parse');
-const XLSX = require('xlsx');
+const ExcelJS = require('exceljs');
 const { analyzeDocument } = require('./azureOCR');
 const { uploadFile } = require('./azureBlobs');
 
@@ -87,18 +87,20 @@ async function processDocument({ localPath, originalName, blobUrl }) {
     }
 
     if (ext === '.xlsx' || ext === '.xls') {
-      // Extract cell text using xlsx
+      // Extract cell text using exceljs (safer alternative to sheetjs/xlsx)
       try {
-        const wb = XLSX.readFile(localPath, { cellDates: true });
-        for (const sheetName of wb.SheetNames) {
-          const sheet = wb.Sheets[sheetName];
-          const json = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
-          for (const row of json) {
-            if (Array.isArray(row)) fullText += row.join(' ') + '\n';
-          }
-        }
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.readFile(localPath);
+        workbook.eachSheet((worksheet) => {
+          worksheet.eachRow((row) => {
+            // row.values may include an empty first slot; filter falsy values
+            const vals = (row.values || []).filter(v => v !== null && v !== undefined && v !== '');
+            const rowText = vals.map(v => String(v).trim()).join(' ');
+            if (rowText) fullText += rowText + '\n';
+          });
+        });
       } catch (e) {
-        console.error('XLSX parse failed:', e.message);
+        console.error('XLSX parse failed (exceljs):', e.message);
       }
 
       // Extract embedded images from xl/media
