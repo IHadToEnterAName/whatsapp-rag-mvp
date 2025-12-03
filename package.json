@@ -2,15 +2,16 @@
   "dependencies": {
     "@azure/storage-blob": "^12.29.1",
     "axios": "^1.13.2",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "exceljs": "^4.3.0",
     "express": "^5.1.0",
     "mammoth": "^1.4.21",
     "multer": "^2.0.2",
     "pdf-parse": "^1.1.1",
     "pg": "^8.16.3",
     "pgvector": "^0.2.1",
-    "unzipper": "^0.10.11",
-    "exceljs": "^4.3.0"
+    "unzipper": "^0.10.11"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
