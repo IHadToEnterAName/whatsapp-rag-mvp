@@ -1,19 +1,19 @@
 // Example: scripts/init_db.js or test-connect.js
+require('dotenv').config(); // Load environment variables from .env file
 const { Client } = require('pg');
 
 async function connectDirectly() {
     console.log('--- DIRECT CONNECTION DIAGNOSTIC START ---');
     
-    // ⚠️ WARNING: Hardcoding credentials is bad practice. 
-    // This is ONLY for troubleshooting the password sync issue.
+    // Database configuration loaded from environment variables
     const DB_CONFIG = {
-        host: "whatsappragmvp.postgres.database.azure.com", 
-        port: 5432,
-        database: "whatsapp_rag", // Use the target database name
-        user: "rag_user@whatsappragmvp", // Fully qualified username
-        password: "SNT-1234", // ⚠️ MUST MATCH the password currently set in Azure
+        host: process.env.DB_HOST, 
+        port: process.env.DB_PORT || 5432,
+        database: process.env.DB_NAME,       // Use the target database name
+        user: process.env.DB_USERNAME,       // Fully qualified username
+        password: process.env.DB_PASSWORD,   // Password from .env file
         ssl: { 
-            rejectUnauthorized: false // Required for Azure dev environment
+            rejectUnauthorized: false // Required for some Azure development environments
         },
         connectionTimeoutMillis: 20000,
     };
@@ -35,7 +35,7 @@ async function connectDirectly() {
         console.error('Error Message:', err.message);
         
         if (err.code === '28P01') {
-            console.error('\n👉 FINAL CONCLUSION: The password ("SNT-1234") in this script does not match the password stored in the Azure server. You MUST reset the password in the Azure Portal/CLI and update this script.');
+            console.error('\n👉 FINAL CONCLUSION: The password in your .env file does not match the password stored in the Azure server. You MUST reset the password in the Azure Portal/CLI and update your .env file.');
         }
     } finally {
         await client.end().catch(() => {});
