@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # This defines your Node.js Express backend service
+  rag-backend:
+    # 1. BUILD: Tell Compose to build the image using the Dockerfile in the current directory
+    build: . 
+    
+    # 2. CONTAINER NAME: Give it a simple, readable name
+    container_name: rag-api
+    
+    # 3. PORTS: Map the host port (8080) to the container port (3000)
+    # The backend will be accessible on localhost:3001 on your machine
+    ports:
+      - "8080:3000"
+      
+    # 4. VOLUMES (Bind Mounts for Dev):
+    volumes:
+      # Mount the current project directory (host) into the container
+      - .:/usr/src/app
+      
+    # 5. ENVIRONMENT VARIABLES: Load variables from a .env file in the same directory
+    env_file:
+      - .env
+      
+    # 6. STARTUP COMMAND: Overrides the Dockerfile CMD to use the 'npm run dev' script (nodemon)
+    # This enables hot-reloading using the bind mount defined above
+    command: npm run dev
+    
+    # 7. PLATFORM (Optional but Recommended): 
+    # Use if you are on Mac/Windows and need to force a Linux environment for consistency
+    # platform: linux/amd64
